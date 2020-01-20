@@ -47,8 +47,11 @@ def check_interval(city_id):
         logging.exception(e)
 
 
-def query_to_api(lat, lon, time_tag='0'):
-    url = 'https://api.darksky.net/forecast/' + darksky_api_key + '/' + str(lat) + ',' + str(lon) + '?'+ 'units=si'
+def query_to_api(lat, lon, time_tag=''):
+    if len(time_tag) > 0:
+        url = 'https://api.darksky.net/forecast/' + darksky_api_key + '/' + str(lat) + ',' + str(lon) + ',' + str(time_tag) + '?'+ 'units=si'
+    else:
+        url = 'https://api.darksky.net/forecast/' + darksky_api_key + '/' + str(lat) + ',' + str(lon) + '?' + 'units=si'
     jsn = get(url)
     if jsn.status_code != 200:
         raise ApiError('GET /tasks/ {}'.format(jsn.status_code))
@@ -132,7 +135,7 @@ def get_current_weather():
     '''
     cities = get_all_cities()
     x = prettytable.PrettyTable()
-    x.field_names = ['City', 'time', 'summary', 'windSpeed', 'temperature', 'uvIndex', 'isibility', 'city_id']
+    x.field_names = ['City', 'time', 'summary', 'windSpeed', 'temperature', 'uvIndex', 'visibility', 'city_id']
     for c in cities:
         if (check_interval(c[0])):
             if (int(nowtime.timestamp()) - int(check_interval(c[0])) >= 60):
@@ -140,12 +143,9 @@ def get_current_weather():
                 write_weather_to_db(q['currently'], c[0])
         else:
             q = query_to_api(str(c[2]), str(c[3]))
-            from pprint import pprint
-            pprint(q)
-            print(write_weather_to_db(q['currently'], c[0]))
-
+            write_weather_to_db(q['currently'], c[0])
         res = get_weather_by_city_id(c[0])
-        x.add_row(res)
+        x.add_row([c[1]]+[str(i) for i in res[0]])
     print(x)
 
 
