@@ -6,7 +6,7 @@ import logging
 import prettytable
 import csv
 
-logging.name = logging.getLogger('darksky_apiscript')
+logging.basicConfig(filename="darksky_apiscript.log", level=logging.INFO)
 
 darksky_api_key = 'bc43015099464582893306ea62d58e9f'
 db_connect = sqlite3.connect('data.db')                 #just a testcase with few queries, so no need to use ORM
@@ -44,7 +44,6 @@ def write_weather_to_db(data, city_id, time_tag=nowtime.timestamp()):
 
 def check_interval(city_id):
     '''
-
     :param city_id: int id of required city
     :return:
     '''
